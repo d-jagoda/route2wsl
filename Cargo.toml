@@ -1,0 +1,17 @@
+[package]
+name = "route2wsl"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+windows-service = "0.8"
+clap = { version = "4.5", features = ["derive"] }
+fern = { version = "0.7"}
+log = "0.4"
+chrono = "0.4"
+windows = { version = "0.61.1", features = ["Win32_NetworkManagement_IpHelper", "Win32_NetworkManagement_Ndis", "Win32_Networking_WinSock", "Win32_Foundation", "Win32_System_HostComputeSystem", "Win32_System_HostComputeNetwork"] }
+widestring = "1.2.0"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+ipnetwork = "0.21.1"
+network-interface = "2.0.1"
