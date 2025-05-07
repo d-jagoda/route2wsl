@@ -1,7 +1,7 @@
-name: Rust Binaries
+name: CI
 
 on:
-  push:
+  pull_request:
     branches: [main]
 
 jobs:
@@ -16,13 +16,7 @@ jobs:
             - type: windows-x64
               os: windows-latest
               target: x86_64-pc-windows-msvc
-              name: route2wsl-x86_64.exe
-              path: target\x86_64-pc-windows-msvc\release\route2wsl.exe
-            - type: windows-x86
-              os: windows-latest
-              target: i686-pc-windows-msvc
-              name: route2wsl-x86.exe
-              path: target\i686-pc-windows-msvc\release\route2wsl.exe
+
       steps:
         - uses: actions/checkout@v4
         - name: Cache cargo & target directories
@@ -35,8 +29,3 @@ jobs:
             args: "--locked --release"
             strip: true
             toolchain: stable
-        - uses: actions/upload-artifact@v4
-          with:
-            name: ${{ matrix.name }}
-            path: ${{ matrix.path }}
-
