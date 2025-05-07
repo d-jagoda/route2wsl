@@ -1,30 +1,37 @@
-name: CI
+name: Rust CI
 
 on:
   pull_request:
+    branches:
+      - main
 
 jobs:
   build-windows:
-      env:
-        IN_PIPELINE: true
-      runs-on: ${{ matrix.os }}
-      strategy:
-        matrix:
-          type: [windows-x64, windows-x86]
-          include:
-            - type: windows-x64
-              os: windows-latest
-              target: x86_64-pc-windows-msvc
+    env:
+      IN_PIPELINE: true
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        type: [windows-x64, windows-x86]
+        include:
+          - type: windows-x64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - type: windows-x86
+            os: windows-latest
+            target: i686-pc-windows-msvc
 
-      steps:
-        - uses: actions/checkout@v4
-        - name: Cache cargo & target directories
-          uses: Swatinem/rust-cache@v2
-        - name: Build binary
-          uses: houseabsolute/actions-rust-cross@v0
-          with:
-            command: build
-            target:  ${{ matrix.target }}
-            args: "--locked --release"
-            strip: true
-            toolchain: stable
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo & target directories
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build (Rust)
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: build
+          target: ${{ matrix.target }}
+          args: "--locked --release"
+          strip: true
+          toolchain: stable
