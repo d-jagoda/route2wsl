@@ -7,30 +7,24 @@ on:
 
 jobs:
   build-windows:
-    name: Build (Windows Targets)
+    env:
+      IN_PIPELINE: true
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        type: [windows-x64, windows-x86]
+        type: [windows-x64]
         include:
           - type: windows-x64
             os: windows-latest
             target: x86_64-pc-windows-msvc
-            name: route2wsl.exe
-            path: target\x86_64-pc-windows-msvc\release\route2wsl.exe
-            zipfile: route2wsl-x86_64.zip
-          - type: windows-x86
-            os: windows-latest
-            target: i686-pc-windows-msvc
-            name: route2wsl.exe
-            path: target\i686-pc-windows-msvc\release\route2wsl.exe
-            zipfile: route2wsl-x86.zip
 
     steps:
       - uses: actions/checkout@v4
-      - name: Cache cargo & target
+
+      - name: Cache cargo & target directories
         uses: Swatinem/rust-cache@v2
-      - name: Build Rust binary
+
+      - name: Build (Rust)
         uses: houseabsolute/actions-rust-cross@v0
         with:
           command: build
@@ -38,39 +32,3 @@ jobs:
           args: "--locked --release"
           strip: true
           toolchain: stable
-      - name: Create zip archive
-        run: |
-            powershell -Command "Compress-Archive -Path '${{ matrix.path }}' -DestinationPath '${{ matrix.zipfile }}'"
-      
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.zipfile }}
-          path: ${{ matrix.zipfile }}
-
-  release:
-    name: Release
-    needs: [build-windows]
-    #if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download Windows x86_64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: route2wsl-x86_64.zip
-          path: dist/
-
-      - name: List release files
-        run: ls -R dist
-
-      - name: Create GitHub Release and upload binaries
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          files: dist/*.zip

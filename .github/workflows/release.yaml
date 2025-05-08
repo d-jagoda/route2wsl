@@ -11,18 +11,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        type: [windows-x64, windows-x86]
+        type: [windows-x64]
         include:
           - type: windows-x64
             os: windows-latest
             target: x86_64-pc-windows-msvc
-            name: route2wsl-x86_64.exe
+            name: route2wsl.exe
             path: target\x86_64-pc-windows-msvc\release\route2wsl.exe
-          - type: windows-x86
-            os: windows-latest
-            target: i686-pc-windows-msvc
-            name: route2wsl-x86.exe
-            path: target\i686-pc-windows-msvc\release\route2wsl.exe
+            zipfile: route2wsl-x86_64.zip
 
     steps:
       - uses: actions/checkout@v4
@@ -36,11 +32,15 @@ jobs:
           args: "--locked --release"
           strip: true
           toolchain: stable
+      - name: Create zip archive
+        run: |
+            powershell -Command "Compress-Archive -Path '${{ matrix.path }}' -DestinationPath '${{ matrix.zipfile }}'"
+      
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.name }}
-          path: ${{ matrix.path }}
+          name: ${{ matrix.zipfile }}
+          path: ${{ matrix.zipfile }}
 
   release:
     name: Release
@@ -56,13 +56,7 @@ jobs:
       - name: Download Windows x86_64 artifact
         uses: actions/download-artifact@v4
         with:
-          name: route2wsl-x86_64.exe
-          path: dist/
-
-      - name: Download Windows x86 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: route2wsl-x86.exe
+          name: route2wsl-x86_64.zip
           path: dist/
 
       - name: List release files
@@ -73,4 +67,4 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
-          files: dist/*.exe
+          files: dist/*.zip
