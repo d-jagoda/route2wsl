@@ -9,6 +9,11 @@ use windows_service::{
     service_manager::{ServiceManager, ServiceManagerAccess},
 };
 
+use clap::Parser;
+use cli::{Cli, Commands};
+
+use crate::{cli};
+
 pub fn install_service(
     service_name: &str,
     wsl_interface: Option<String>,
@@ -101,6 +106,49 @@ pub fn uninstall_service(service_name: &str) -> Result<(), String> {
     }
 
     println!("{} is marked for deletion.", service_name);
+
+    Ok(())
+}
+
+pub fn print_installation_details(service_name: &str) -> Result<(), String> {
+    let manager_access = ServiceManagerAccess::CONNECT;
+    let service_manager =
+        ServiceManager::local_computer(None::<&str>, manager_access).map_win_err()?;
+
+    let service_access = ServiceAccess::QUERY_CONFIG;
+    let service = service_manager
+        .open_service(service_name, service_access)
+        .map_win_err()?;
+
+    let service_config = service.query_config().map_win_err()?;
+
+    if let Some(path_str) = service_config.executable_path.to_str() {
+        let mut path_and_args = windows_args::Args::parse_cmd(path_str);
+
+        if let Some(executable) = path_and_args.next() {
+            println!("Instaled Path: {}", executable);
+
+            let mut args: Vec<String> = vec![String::from("route2wsl")];
+            args.extend(path_and_args.enumerate().map(|x| x.1));
+
+            let cli: Cli = Cli::try_parse_from(args)
+                .map_err(|e| format!("Service was installed with unknown arguments: {}", e))?;
+
+            if let Commands::Run(cli::RunArgs {
+                wsl_interface: _,
+                routes,
+                log_level: _,
+            }) = cli.command
+            {
+                println!("With Routes:");
+                for route in routes {
+                    println!("   {route}")
+                }
+            }
+        } else {
+            println!("Installation path could not be found.");
+        }
+    }
 
     Ok(())
 }
