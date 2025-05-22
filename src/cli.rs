@@ -45,6 +45,9 @@ pub enum Commands {
     /// Runs the service
     #[clap(hide = true)]
     Run(RunArgs),
+
+    /// Prints details about the existing installation
+    Inspect
 }
 
 pub fn validate_route(val: &str) -> Result<Ipv4Network, String> {

@@ -33,6 +33,11 @@ fn main() {
                 println!("{}", _e);
             }
         }
+        Commands::Inspect => {
+            if let Err(_e) = installer::print_installation_details(service::SERVICE_NAME) {
+                println!("{}", _e);
+            }          
+        }
         _ => service::bootstrap(),
     }
 }

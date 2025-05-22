@@ -6,11 +6,11 @@ route2wsl is a windows service that configures Windows IPv4 routing table to for
 
 ### WSL static ip
 
-- Set a static ip on WSL (for example: 10.1.0.3)
+- Set a static ip on WSL (for example: 10.2.0.3)
 
 ```bash
 ip link add br01 type bridge
-ip addr add 10.1.0.3/16 dev br01
+ip addr add 10.2.0.3/16 dev br01
 ip link set br01 up
 ```
 
@@ -18,13 +18,13 @@ If you want this persisted across reboots, then include the commands in `/etc/ws
 
 ```ini
 [boot]
-command = ip link add br01 type bridge & ip addr add 10.1.0.3/16 dev br01 & ip link set br01 up
+command = ip link add br01 type bridge & ip addr add 10.2.0.3/16 dev br01 & ip link set br01 up
 ```
 
-- In Windows, install `route2wsl` for the 10.1.0.0/16 ip address range
+- In Windows, install `route2wsl` for 10.2.0.3/24
 
 ```cmd
-D:\temp\route2wsl-x86_64>route2wsl install -r 10.1.0.0/16
+D:\temp\route2wsl-x86_64>route2wsl install -r 10.2.0.3/24
 Service installed!
 Starting service
 Service started
@@ -33,11 +33,11 @@ Service started
 - Test it out
 
 ```cmd
-D:\temp\route2wsl-x86_64>ping 10.1.0.3
+D:\temp\route2wsl-x86_64>ping 10.2.0.3
 
-Pinging 10.1.0.3 with 32 bytes of data:
-Reply from 10.1.0.3: bytes=32 time<1ms TTL=64
-Reply from 10.1.0.3: bytes=32 time=1ms TTL=64
+Pinging 10.2.0.3 with 32 bytes of data:
+Reply from 10.2.0.3: bytes=32 time<1ms TTL=64
+Reply from 10.2.0.3: bytes=32 time=1ms TTL=64
 ```
 
 ### Accessing MicroK8s on WSL2 from Windows
@@ -69,7 +69,7 @@ command = sh /etc/setup_network.sh
 4 . In Windows, install `route2wsl` for the pod CIDR, service CIDR, and 10.2.0.0/16 ip address ranges to make it possible to reach kubernetes pods, services and lastly to be able to address WSL with the static IP of `10.2.0.3`
 
 ```cmd
-D:\temp\route2wsl-x86_64>route2wsl install -r 10.1.0.0/16 -r 10.152.183.0/24 -r 10.2.0.0/16
+D:\temp\route2wsl-x86_64>route2wsl install -r 10.1.0.0/16 -r 10.152.183.0/24 -r 10.2.0.3/24
 Service installed!
 Starting service
 Service started
@@ -106,7 +106,6 @@ kube-system      pod/coredns-79b94494c7-7t2zs                     1/1     Runnin
 kube-system      pod/dashboard-metrics-scraper-5bd45c9dd6-rwnm2   1/1     Running   2 (23h ago)   47h   10.1.191.145    djagoda-1   <none>           <none>
 kube-system      pod/kubernetes-dashboard-57bc5f89fb-m66l8        1/1     Running   2 (23h ago)   47h   10.1.191.143    djagoda-1   <none>           <none>
 kube-system      pod/metrics-server-7dbd8b5cc9-pfzbk              1/1     Running   2 (23h ago)   47h   10.1.191.144    djagoda-1   <none>           <none>
-metallb-system   pod/controller-7ffc454778-9bx2v                  1/1     Running   0             23h   10.1.191.147    djagoda-1   <none>           <none>
 ```
 
 ## 🧩 How It Works
@@ -119,3 +118,25 @@ It does this with the following steps:
 - Resolve the network interface used by WSL
 - Resolves the IP address of the network interface - does this every 30 seconds
 - Adds rules to the routing table if the network interface has changed since last time it was configured.
+
+## 🛠️ Building This Rust Project
+
+### Prerequisites
+
+Before building, ensure the following tools are installed:
+
+1. **Rust Toolchain**
+
+2. (Optional) **Git**
+
+---
+
+### Build Instructions
+
+Once the environment is ready, clone and build the project:
+
+```
+git clone https://github.com/d-jagoda/route2wsl.git
+cd route2wsl
+cargo build --release
+```
