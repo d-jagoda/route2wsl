@@ -8,7 +8,8 @@ pub fn get_virtual_machine_id(owner: &str) -> Result<String, String> {
 
     #[derive(Debug, Serialize, Deserialize)]
     struct ComputeSystem {
-        Id: String,
+        #[serde(rename = "Id")]
+        id: String,
     }
 
     unsafe {
@@ -39,7 +40,7 @@ pub fn get_virtual_machine_id(owner: &str) -> Result<String, String> {
         if compute_systems.is_empty() {
             Err(String::from(format!("Could not find virtual machine for {}", owner)))
         } else {
-            Ok(compute_systems[0].Id.clone())
+            Ok(compute_systems[0].id.clone())
         }
     }
 }

@@ -6,13 +6,20 @@ use windows::{
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Endpoint {
-    pub ID: String,
-    pub Name: String,
-    pub VirtualNetwork: String,
-    pub VirtualNetworkName: String,
-    pub IPAddress:  String,
-    pub GatewayAddress: String,
-    pub VirtualMachine:  String,
+    #[serde(rename = "ID")]
+    pub id: String,
+    #[serde(rename = "Name")]
+    pub name: String,
+    #[serde(rename = "VirtualNetwork")]
+    pub virtual_network: String,
+    #[serde(rename = "VirtualNetworkName")]
+    pub virtual_network_name: String,
+    #[serde(rename = "IPAddress")] 
+    pub ipaddress:  String,
+    #[serde(rename = "GatewayAddress")]
+    pub gateway_address: String,
+    #[serde(rename = "VirtualMachine")] 
+    pub virtual_machine:  String,
 }
 
 pub fn list_endpoints() -> Result<Vec<Endpoint>, String> {

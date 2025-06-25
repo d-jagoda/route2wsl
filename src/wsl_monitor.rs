@@ -100,14 +100,14 @@ fn find_wsl_interface() -> Result<String, String> {
     let endpoints = list_endpoints()?;
     let wsl_endpoints: Vec<&Endpoint> = endpoints
         .iter()
-        .filter(|x| x.VirtualMachine == vm_id)
+        .filter(|x| x.virtual_machine == vm_id)
         .collect();
 
     if wsl_endpoints.is_empty() {
         Err(format!("Would not find an endpoint for WSL VM {}", vm_id))
     } else {
         let gateway_ip = wsl_endpoints[0]
-            .GatewayAddress
+            .gateway_address
             .parse::<IpAddr>()
             .map_err(|e| format!("Failed to convert VM gateway IP: {}", e))?;
 
@@ -122,7 +122,7 @@ fn find_wsl_interface() -> Result<String, String> {
         if gatway_interface.is_empty() {
             Err(String::from(format!(
                 "Gatway interface for IP Address {} could not be found",
-                wsl_endpoints[0].GatewayAddress
+                wsl_endpoints[0].gateway_address
             )))
         } else {
             Ok(gatway_interface[0].name.clone())

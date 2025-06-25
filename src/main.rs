@@ -38,6 +38,13 @@ fn main() {
                 println!("{}", _e);
             }          
         }
+        Commands::AddRoute(cli::ChangeRoutesArgs {
+            routes
+        }) => {
+            if let Err(_e) = installer::add_route(service::SERVICE_NAME, routes) {
+                println!("{}", _e);
+            }             
+        }
         _ => service::bootstrap(),
     }
 }
