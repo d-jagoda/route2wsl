@@ -30,6 +30,20 @@ pub struct RunArgs {
     pub log_level: LevelFilter 
 }
 
+#[derive(Args, Debug)]
+pub struct ChangeRoutesArgs {
+    /// Route in the format IP/MASK. This argument can be repeated. For example: -r 10.1.0.0/16 -r 10.96.0.0/12
+    #[clap(
+        action(clap::ArgAction::Append),
+        long("route"),
+        short,
+        required(true),
+        value_parser  = validate_route,
+        value_name = "ROUTE"
+    )]
+    pub routes: Vec<Ipv4Network>,
+}
+
 #[derive(Subcommand)]
 #[clap(name = "Route to WSL")]
 #[clap(
@@ -47,7 +61,10 @@ pub enum Commands {
     Run(RunArgs),
 
     /// Prints details about the existing installation
-    Inspect
+    Inspect,
+
+    /// Adds a route to the configuration
+    AddRoute(ChangeRoutesArgs)
 }
 
 pub fn validate_route(val: &str) -> Result<Ipv4Network, String> {
